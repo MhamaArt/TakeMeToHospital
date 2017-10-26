@@ -1,0 +1,12 @@
+README.rst
+setup.cfg
+setup.py
+falcon_auth/__init__.py
+falcon_auth/backends.py
+falcon_auth/middleware.py
+falcon_auth/serializer.py
+falcon_auth.egg-info/PKG-INFO
+falcon_auth.egg-info/SOURCES.txt
+falcon_auth.egg-info/dependency_links.txt
+falcon_auth.egg-info/requires.txt
+falcon_auth.egg-info/top_level.txt
