@@ -8,7 +8,7 @@ const options = {
     //passphrase: '',
     port: 2512,
     // privateKeyFile: './key.rsa',
-    deployPath: '/var/www/vhost/path/to/project'
+    deployPath: '/home/mhama/project'
 };
  
 const deployer = new Deployer(options);
