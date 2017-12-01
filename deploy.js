@@ -4,9 +4,10 @@ const options = {
     localPath: './',
     host: '77.47.207.42',
     username: 'mhama',
-    passphrase: '',
+    password: 'Rossignol',
+    //passphrase: '',
     port: 2512,
-    privateKeyFile: 'key.rsa',
+    // privateKeyFile: './key.rsa',
     deployPath: '/var/www/vhost/path/to/project'
 };
  
