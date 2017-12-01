@@ -83,10 +83,8 @@ class Symptoms(object):
 
 if __name__ == "__main__":
     # Database connection setup
-    # engine = create_engine(DB_TYPE+'://'+DB_LOGIN+':'+DB_PASSWORD+'@'+DB_HOST+':'+DB_PORT+'/'+DB, echo=True)
-    # Session = sessionmaker(bind=engine)
-
-
+    engine = create_engine(DB_TYPE+'://'+DB_LOGIN+':'+DB_PASSWORD+'@'+DB_HOST+':'+DB_PORT+'/'+DB, echo=True)
+    Session = sessionmaker(bind=engine)
 
     # HTTP server setup
     app = falcon.API()

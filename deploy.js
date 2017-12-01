@@ -11,10 +11,10 @@ new Deployer({
     // privateKeyFile: './key.rsa',
     deployPath: '/home/mhama/project',
     onAfterDeploy(context, done) {
-    	context.logger.log('Move dir to project/build/');
+    	context.logger.log('Move dir to project/build/1.0');
 
-		context.remote.exec('rm -rf /home/mhama/project/releases/build/', () => {
-	    	context.remote.exec(`cp -R /home/mhama/project/releases/${context.release.tag} /home/mhama/project/build/`, () => {
+		context.remote.exec('rm -rf /home/mhama/project/releases/build/1.0', () => {
+	    	context.remote.exec(`cp -R /home/mhama/project/releases/${context.release.tag} /home/mhama/project/build/1.0/`, () => {
 	    		context.remote.exec('rm -rf /home/mhama/project/releases/', done);
 	    	});
 	    });
