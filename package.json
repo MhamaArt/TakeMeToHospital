@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/MhamaArt/TakeMeToHospital#readme",
   "dependencies": {
+    "decompress": "^4.2.0",
+    "decompress-targz": "^4.1.1",
     "ssh-deploy-release": "^2.1.3"
   }
 }
