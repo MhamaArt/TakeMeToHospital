@@ -1,9 +1,7 @@
 const Deployer = require('ssh-deploy-release');
-const decompress = require('decompress');
-const decompressTargz = require('decompress-targz');
 const path = require('path');
- 
-const options = {
+
+new Deployer({
     localPath: './',
     host: '77.47.207.42',
     username: 'mhama',
@@ -11,20 +9,14 @@ const options = {
     //passphrase: '',
     port: 2512,
     // privateKeyFile: './key.rsa',
-    deployPath: '/home/mhama/project'
-};
- 
-const deployer = new Deployer(options);
-deployer.deployRelease((context) => {
-	const archivePath = context.release.path;
+    deployPath: '/home/mhama/project',
+    onAfterDeploy(context, done) {
+    	context.logger.log('Move dir to project/build/');
 
-	decompress(path.join(archivePath, 'release.tar.gz'), 'dist', {
-	    plugins: [
-	        decompressTargz()
-	    ]
-	}).then(() => {
-	    console.log('Files decompressed');
-	});
-
-    console.log('Deployed !')
-});
+		context.remote.exec('rm -rf /home/mhama/project/releases/build/', () => {
+	    	context.remote.exec(`cp -R /home/mhama/project/releases/${context.release.tag} /home/mhama/project/build/`, () => {
+	    		context.remote.exec('rm -rf /home/mhama/project/releases/', done);
+	    	});
+	    });
+    }
+}).deployRelease();
