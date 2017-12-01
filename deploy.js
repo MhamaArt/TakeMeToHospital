@@ -9,14 +9,16 @@ new Deployer({
     //passphrase: '',
     port: 2512,
     // privateKeyFile: './key.rsa',
-    deployPath: '/home/mhama/project/releases',
+    deployPath: '/home/mhama/project',
     onAfterDeploy(context, done) {
     	context.logger.log('Move dir to project/build/');
-        /*
-		context.remote.exec('rm -rf /home/mhama/project/build/active', () => {
-	    	context.remote.exec(`cp -R /home/mhama/project/releases/${context.release.tag} /home/mhama/project/build/active`, () => {
+
+		context.remote.exec('rm -rf /home/mhama/project/build', () => {
+		    context.logger.log('Removed build/');
+	    	context.remote.exec(`cp -R /home/mhama/project/releases/${context.release.tag} /home/mhama/project/build/`, () => {
+	    	    context.logger.log('Copied');
 	    		context.remote.exec('rm -rf /home/mhama/project/releases/', done);
 	    	});
-	    });*/
+	    });
     }
 }).deployRelease();
