@@ -6,6 +6,7 @@ new Deployer({
     host: '77.47.207.42',
     username: 'mhama',
     password: 'Rossignol',
+    exclude: './venv',
     //passphrase: '',
     port: 2512,
     // privateKeyFile: './key.rsa',
