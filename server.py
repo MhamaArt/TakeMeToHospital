@@ -81,6 +81,19 @@ class Symptoms(object):
         resp.status = falcon.HTTP_200
 
 
+class Hospital(object):
+    def on_get(self, req, resp):
+        resp.content_type = falcon.MEDIA_JSON
+
+        respp = [{
+            'id': 1,
+            'name': 'test',
+            'location':'shadhckck'
+        }]
+        resp.body = json.dumps(respp)
+        resp.status = falcon.HTTP_200
+
+
 if __name__ == "__main__":
     # Database connection setup
     engine = create_engine(DB_TYPE+'://'+DB_LOGIN+':'+DB_PASSWORD+'@'+DB_HOST+':'+DB_PORT+'/'+DB, echo=True)
@@ -88,5 +101,8 @@ if __name__ == "__main__":
 
     # HTTP server setup
     app = falcon.API()
+
     app.add_route('/symptoms', Symptoms())
+    app.add_route('/hospital', Hospital())
+
     serve(app, listen='*:5678')
