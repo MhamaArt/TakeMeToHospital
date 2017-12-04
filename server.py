@@ -76,4 +76,4 @@ if __name__ == "__main__":
     app.add_route('/symptoms', Symptoms())
     app.add_route('/hospital', Hospital())
 
-    # serve(app, listen='*:5678')
+    serve(app, listen='*:5678')
