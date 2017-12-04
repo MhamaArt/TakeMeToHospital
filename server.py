@@ -1,6 +1,4 @@
-#! ../bin/python
-
-import falcon
+from falcon import *
 import json
 from waitress import serve
 from Settings import *
