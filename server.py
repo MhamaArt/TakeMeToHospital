@@ -1,3 +1,5 @@
+#! ../bin/python
+
 import falcon
 import json
 from waitress import serve
