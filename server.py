@@ -46,15 +46,15 @@ class Hospital(object):
 
 
         respp = {
-            'name': 'Центральна лікарня №3',
+            'name': 'Central clinic 2',
             'location': '50.450789, 30.497336',
             'opening': '9:00',
             'closure': '19:00',
             'doctors': [{
-                'fname': "Василий",
-                'sname': 'Лазоришинец',
-                'pname': 'Васильевич',
-                'specialities': ['Ендокринолог', 'Терапевт'],
+                'fname': "Vasiliy",
+                'sname': 'Lasorischinets',
+                'pname': 'V',
+                'specialities': ['Surgeon', 'Therapy'],
                 'cabinet': '410',
                 'phone': '+380632280797'
                 }]
