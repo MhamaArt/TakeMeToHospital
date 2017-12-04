@@ -1,6 +1,5 @@
-from falcon import *
+import falcon
 import json
-from waitress import serve
 from Settings import *
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
@@ -76,4 +75,3 @@ if __name__ == "__main__":
     app.add_route('/symptoms', Symptoms())
     app.add_route('/hospital', Hospital())
 
-    serve(app, listen='*:5678')
