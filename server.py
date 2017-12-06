@@ -40,55 +40,35 @@ class Hospital(object):
 
         session = Session()
 
-        sympList = json.loads(req.get_header('symptoms'))
-
-        matchedDeceases = session.query(Decease.id, func.count(Symptom.id).label('matches')) \
-            .join(Decease.symptoms) \
-            .filter(Symptom.id.in_(sympList)) \
-            .group_by(Decease.id).order_by(Decease.id).all()
-
-        deceasesCount = session.query(Decease.id, func.count(Symptom.id).label('countt')) \
-            .join(Decease.symptoms) \
-            .group_by(Decease.id).order_by(Decease.id).all()
-
-        diffDict = {}
-        bestRating = 0
-        for i in range(len(matchedDeceases)):
-            rating = abs(matchedDeceases[i].matches / deceasesCount[i].countt)
-            if rating > bestRating:
-                bestRating = rating
-            diffDict[matchedDeceases[i].id] = rating
-
-        bestId = []
-        for key in diffDict:
-            if diffDict[key] == bestRating:
-                bestId.append(key)
+        matchedSpecs = session.query(Speciality.id) \
+            .join(Speciality.symptoms) \
+            .filter(Symptom.id.in_(json.loads(req.get_header('symptoms')))) \
+            .all()
 
         location = 'POINT('+req.get_header("latitude")+' '+req.get_header("longitude")+')'
 
-        clinicsForDecease = {}
-        for deceaseId in bestId:
+        clinicsForSpecs = {}
+        for specId in matchedSpecs:
             results = session.query(Clinic.id) \
                 .join(Clinic.doctors) \
                 .join(Doctor.specialities) \
-                .join(Speciality.deceases) \
-                .filter(Decease.id == deceaseId) \
+                .filter(Speciality.id == specId) \
                 .distinct(Clinic.id).all()
 
             clinicsList = []
             for idd in results:
                 clinicsList.append(idd)
-                clinicsForDecease[deceaseId] = clinicsList
+                clinicsForSpecs[specId] = clinicsList
 
         distinctClinicsList = []
-        for deceaseId in clinicsForDecease:
-            for clinicId in clinicsForDecease[deceaseId]:
+        for specId in clinicsForSpecs:
+            for clinicId in clinicsForSpecs[specId]:
                 if clinicId not in distinctClinicsList:
                     distinctClinicsList.append(clinicId)
 
-        for deceaseId in clinicsForDecease:
+        for specId in clinicsForSpecs:
             for clinicId in distinctClinicsList:
-                if clinicId not in clinicsForDecease[deceaseId]:
+                if clinicId not in clinicsForSpecs[specId]:
                     distinctClinicsList.remove(clinicId)
 
         closestClinic = session.query(Clinic.id) \
@@ -103,11 +83,11 @@ class Hospital(object):
 
         clinicOutput = session.query(Clinic).filter(Clinic.id == closestClinic.id).first()
 
-        doctorsOutput = session.query(Doctor).join(Clinic.doctors).join(Doctor.specialities).join(Speciality.deceases) \
-            .filter(Clinic.id == closestClinic.id).filter(Decease.id.in_(bestId)).distinct(Doctor.id).all()
+        doctorsOutput = session.query(Doctor).join(Doctor.clinics).join(Doctor.specialities) \
+            .filter(Clinic.id == closestClinic.id).filter(Speciality.id.in_(matchedSpecs)).distinct(Doctor.id).all()
 
-        specsOutput = session.query(Speciality.name).join(Clinic.doctors).join(Doctor.specialities).join(Speciality.deceases)\
-            .filter(Clinic.id == closestClinic.id).filter(Decease.id.in_(bestId))
+        specsOutput = session.query(Speciality.name).join(Clinic.doctors).join(Doctor.specialities)\
+            .filter(Clinic.id == closestClinic.id).filter(Speciality.id.in_(matchedSpecs))
 
         losationStringX = session.query(func.ST_X(clinicOutput.location).label('x')).first()
         losationStringY = session.query(func.ST_Y(clinicOutput.location).label('y')).first()
@@ -137,9 +117,11 @@ if __name__ == "__main__":
     engine = create_engine(DB_TYPE+'://'+DB_LOGIN+':'+DB_PASSWORD+'@'+DB_HOST+':'+DB_PORT+'/'+DB, echo=True)
     Session = sessionmaker(bind=engine)
 
-    # HTTP server setup
-    app = falcon.API()
-    app.add_route('/symptoms', Symptoms())
-    app.add_route('/hospital', Hospital())
+    create_schema(engine)
 
-    serve(app, listen='*:5678')
+    # # HTTP server setup
+    # app = falcon.API()
+    # app.add_route('/symptoms', Symptoms())
+    # app.add_route('/hospital', Hospital())
+    #
+    # serve(app, listen='*:5678')

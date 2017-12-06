@@ -36,9 +36,9 @@ class Symptom(Base):
         back_populates='symptoms'
     )
 
-    deceases = relationship(
-        'Decease',
-        secondary='SymptomDecease',
+    specialities = relationship(
+        'Speciality',
+        secondary='SymptomSpeciality',
         back_populates='symptoms'
     )
 
@@ -49,38 +49,9 @@ class Symptom(Base):
         self.gender = gen
 
 
-SymptomDecease = Table(
+SymptomSpeciality = Table(
     'SymptomDecease', Base.metadata,
     Column('symptom', Integer, ForeignKey('Symptom.id'), nullable=False),
-    Column('decease', Integer, ForeignKey('Decease.id'), nullable=False)
-)
-
-
-class Decease(Base):
-    __tablename__ = 'Decease'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(30), nullable=False)
-    description = Column(String(500))
-
-    symptoms = relationship(
-        Symptom,
-        secondary=SymptomDecease,
-        back_populates='deceases'
-    )
-
-    specialities = relationship(
-        'Speciality',
-        secondary='DeceaseSpeciality',
-        back_populates='deceases'
-    )
-
-    def __init__(self, name):
-        self.name = name
-
-
-DeceaseSpeciality = Table(
-    'DeceaseSpeciality', Base.metadata,
-    Column('decease', Integer, ForeignKey('Decease.id'), nullable=False),
     Column('speciality', Integer, ForeignKey('Speciality.id'), nullable=False)
 )
 
@@ -91,9 +62,9 @@ class Speciality(Base):
     name = Column(String(30), nullable=False)
     description = Column(String(500))
 
-    deceases = relationship(
-        Decease,
-        secondary=DeceaseSpeciality,
+    symptoms = relationship(
+        Symptom,
+        secondary=SymptomSpeciality,
         back_populates='specialities'
     )
 
