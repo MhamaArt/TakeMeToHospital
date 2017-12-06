@@ -50,7 +50,7 @@ class Symptom(Base):
 
 
 SymptomSpeciality = Table(
-    'SymptomDecease', Base.metadata,
+    'SymptomSpeciality', Base.metadata,
     Column('symptom', Integer, ForeignKey('Symptom.id'), nullable=False),
     Column('speciality', Integer, ForeignKey('Speciality.id'), nullable=False)
 )
@@ -137,18 +137,3 @@ def create_schema(engine):
 
 def delete_schema(engine):
     Base.metadata.drop_all(engine)
-
-
-
-    #     session.add_all([
-    #     Symptom("Втрату слуху", 1, None, None),
-    #     Symptom("Капловухість", 1, None, None),
-    #     Symptom("Шум у вухах", 1, None, None),
-    #     Symptom("Амнезія", 2, None, None),
-    #     Symptom("Випадіння волосся", 2, None, None),
-    #     Symptom("Галюцинації", 2, None, None),
-    #     Symptom("Жар", 2, None, None),
-    #     Symptom("Запаморочення", 2, None, None),
-    #     Symptom("Тремор", 2, None, None)
-    # ])
-    # session.commit()

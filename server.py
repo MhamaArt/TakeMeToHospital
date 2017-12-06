@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     # HTTP server setup
     app = falcon.API()
-    
+
     app.add_route('/symptoms', Symptoms())
     app.add_route('/hospital', Hospital())
 
