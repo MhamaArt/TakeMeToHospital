@@ -117,11 +117,10 @@ if __name__ == "__main__":
     engine = create_engine(DB_TYPE+'://'+DB_LOGIN+':'+DB_PASSWORD+'@'+DB_HOST+':'+DB_PORT+'/'+DB, echo=True)
     Session = sessionmaker(bind=engine)
 
-    create_schema(engine)
+    # HTTP server setup
+    app = falcon.API()
+    
+    app.add_route('/symptoms', Symptoms())
+    app.add_route('/hospital', Hospital())
 
-    # # HTTP server setup
-    # app = falcon.API()
-    # app.add_route('/symptoms', Symptoms())
-    # app.add_route('/hospital', Hospital())
-    #
-    # serve(app, listen='*:5678')
+    serve(app, listen='*:5678')
