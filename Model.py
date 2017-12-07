@@ -92,7 +92,7 @@ class Doctor(Base):
     second_name = Column(String(30), nullable=False)
     fathers_name = Column(String(30))
 
-    phone = Column(String(12))
+    phone = Column(String(30))
     cabinet = Column(String(12))
 
     specialities = relationship(
@@ -115,7 +115,7 @@ class Doctor(Base):
 class Clinic(Base):
     __tablename__ = 'Clinic'
     id = Column(Integer, primary_key=True)
-    name = Column(String(30), nullable=False)
+    name = Column(String(100), nullable=False)
     location = Column(Geography, nullable=False)
     opening = Column(Time)
     closure = Column(Time)

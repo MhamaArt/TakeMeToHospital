@@ -60,16 +60,12 @@ class Hospital(object):
                 clinicsList.append(idd)
                 clinicsForSpecs[specId] = clinicsList
 
-        distinctClinicsList = []
+        distinctClinicsList = set()
         for specId in clinicsForSpecs:
             for clinicId in clinicsForSpecs[specId]:
-                if clinicId not in distinctClinicsList:
-                    distinctClinicsList.append(clinicId)
+                distinctClinicsList.add(clinicId)
 
-        for specId in clinicsForSpecs:
-            for clinicId in distinctClinicsList:
-                if clinicId not in clinicsForSpecs[specId]:
-                    distinctClinicsList.remove(clinicId)
+        print(len(distinctClinicsList))
 
         closestClinic = session.query(Clinic.id) \
             .filter(Clinic.id.in_(distinctClinicsList)) \
@@ -80,6 +76,7 @@ class Hospital(object):
             resp.status = falcon.HTTP_404
             resp.body = json.dumps({})
             return
+
 
         clinicOutput = session.query(Clinic).filter(Clinic.id == closestClinic.id).first()
 
@@ -95,8 +92,8 @@ class Hospital(object):
         respp = {
             'name': clinicOutput.name,
             'location': str(losationStringX.x) + ' ' + str(losationStringY.y),
-            'opening': clinicOutput.opening,
-            'closure': clinicOutput.closure,
+            'opening': str(clinicOutput.opening),
+            'closure': str(clinicOutput.closure),
             'doctors':  [{
                 'fname': doctor.first_name,
                 'sname': doctor.second_name,
