@@ -2,7 +2,7 @@ import falcon
 import json
 from waitress import serve
 from Settings import *
-from sqlalchemy import create_engine, or_, and_, func, any_, desc,asc
+from sqlalchemy import create_engine, or_, and_, func, any_, desc, asc
 from sqlalchemy.orm import sessionmaker
 from Model import *
 from geoalchemy2 import func
@@ -65,8 +65,6 @@ class Hospital(object):
             for clinicId in clinicsForSpecs[specId]:
                 distinctClinicsList.add(clinicId)
 
-        print(len(distinctClinicsList))
-
         closestClinic = session.query(Clinic.id) \
             .filter(Clinic.id.in_(distinctClinicsList)) \
             .order_by(asc(func.ST_Distance(Clinic.location, func.ST_GeographyFromText(location)))) \
@@ -76,7 +74,6 @@ class Hospital(object):
             resp.status = falcon.HTTP_404
             resp.body = json.dumps({})
             return
-
 
         clinicOutput = session.query(Clinic).filter(Clinic.id == closestClinic.id).first()
 
@@ -109,6 +106,56 @@ class Hospital(object):
         resp.body = json.dumps(respp)
         resp.status = falcon.HTTP_200
 
+
+class Specs(object):
+    def on_get(self, req, resp):
+        resp.content_type = falcon.MEDIA_JSON
+        session = Session()
+
+        resp.body = json.dumps([{
+            'id': idd,
+            'name': name,
+            'matches': matches
+            } for idd, name, matches in session.query(Speciality.id, Speciality.name, func.count(Symptom.id).label('matches'))
+            .join(Speciality.symptoms)
+            .filter(Symptom.id.in_(json.loads(req.get_header('symptoms'))))
+            .group_by(Speciality.id, Speciality.name)
+            .order_by('matches DESC')
+            .all()
+        ])
+
+        session.close()
+        resp.status = falcon.HTTP_200
+
+
+class Clinics(object):
+    def on_get(self, req, resp):
+        resp.content_type = falcon.MEDIA_JSON
+        session = Session()
+
+        resp.body = json.dumps([{
+            'name': clinic.name,
+            'location': str(session.query(func.ST_X(clinic.location).label('x')).first()) +
+                        ' ' +
+                        str(session.query(func.ST_Y(clinic.location).label('y')).first()),
+            'opening': str(clinic.opening),
+            'closure': str(clinic.closure),
+            'doctors': [{
+                'name': doctor.second_name + ' ' + doctor.first_name + '. ' + doctor.fathers_name + '.',
+                'specialities': [
+                    spec.name for spec in session.query(Speciality).join(Speciality.doctors).filter(Doctor.id == doctor.id).all()
+                ],
+                'cabinet': doctor.cabinet,
+                'phone': doctor.phone
+                } for doctor in session.query(Doctor).join(Doctor.clinics).filter(Clinic.id == clinic.id).all()
+                ]
+            } for clinic in session.query(Clinic).all()
+        ])
+
+        session.close()
+        resp.status = falcon.HTTP_200
+
+
 if __name__ == "__main__":
     # Database connection setup
     engine = create_engine(DB_TYPE+'://'+DB_LOGIN+':'+DB_PASSWORD+'@'+DB_HOST+':'+DB_PORT+'/'+DB, echo=True)
@@ -119,5 +166,8 @@ if __name__ == "__main__":
 
     app.add_route('/symptoms', Symptoms())
     app.add_route('/hospital', Hospital())
+
+    app.add_route('/specs', Specs())
+    app.add_route('/clinics', Clinics())
 
     serve(app, listen='*:5678')
