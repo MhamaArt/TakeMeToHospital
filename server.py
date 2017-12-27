@@ -135,9 +135,9 @@ class Clinics(object):
 
         resp.body = json.dumps([{
             'name': clinic.name,
-            'location': str(session.query(func.ST_X(clinic.location).label('x')).first()) +
+            'location': str(session.query(func.ST_X(clinic.location).label('x')).first().x) +
                         ' ' +
-                        str(session.query(func.ST_Y(clinic.location).label('y')).first()),
+                        str(session.query(func.ST_Y(clinic.location).label('y')).first().y),
             'opening': str(clinic.opening),
             'closure': str(clinic.closure),
             'doctors': [{
