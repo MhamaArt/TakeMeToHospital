@@ -47,23 +47,17 @@ class Hospital(object):
 
         location = 'POINT('+req.get_header("latitude")+' '+req.get_header("longitude")+')'
 
-        clinicsForSpecs = {}
+        clinicsForSpecs = []
         for specId in matchedSpecs:
-            results = session.query(Clinic.id) \
-                .join(Clinic.doctors) \
-                .join(Doctor.specialities) \
-                .filter(Speciality.id == specId) \
+            clinicsForSpecs.append(
+                session.query(Clinic.id)
+                .join(Clinic.doctors)
+                .join(Doctor.specialities)
+                .filter(Speciality.id == specId)
                 .distinct(Clinic.id).all()
+            )
 
-            clinicsList = []
-            for idd in results:
-                clinicsList.append(idd)
-                clinicsForSpecs[specId] = clinicsList
-
-        distinctClinicsList = set()
-        for specId in clinicsForSpecs:
-            for clinicId in clinicsForSpecs[specId]:
-                distinctClinicsList.add(clinicId)
+        distinctClinicsList = set(clinicsForSpecs[0]).intersection(*clinicsForSpecs)
 
         closestClinic = session.query(Clinic.id) \
             .filter(Clinic.id.in_(distinctClinicsList)) \
