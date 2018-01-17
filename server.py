@@ -39,28 +39,27 @@ class Hospital(object):
         resp.content_type = falcon.MEDIA_JSON
 
         session = Session()
-
-        matchedSpecs = session.query(Speciality.id) \
-            .join(Speciality.symptoms) \
-            .filter(Symptom.id.in_(json.loads(req.get_header('symptoms')))) \
-            .all()
-
+        matchedSymptoms = json.loads(req.get_header('symptoms'))
         location = 'POINT('+req.get_header("latitude")+' '+req.get_header("longitude")+')'
 
-        clinicsForSpecs = []
-        for specId in matchedSpecs:
-            clinicsForSpecs.append(
-                session.query(Clinic.id)
-                .join(Clinic.doctors)
-                .join(Doctor.specialities)
-                .filter(Speciality.id == specId)
-                .distinct(Clinic.id).all()
+        clinicsForSympts = []
+        for symptId in matchedSymptoms:
+            clinicsForSympts.append(
+                set(
+                    session.query(Clinic.id)
+                    .join(Clinic.doctors)
+                    .join(Doctor.specialities)
+                    .join(Speciality.symptoms)
+                    .filter(Symptom.id == symptId)
+                    .distinct(Clinic.id)
+                    .all()
+                )
             )
 
-        distinctClinicsList = set(clinicsForSpecs[0]).intersection(*clinicsForSpecs)
+        matchedClinics = set(clinicsForSympts[0]).intersection(*clinicsForSympts)
 
         closestClinic = session.query(Clinic.id) \
-            .filter(Clinic.id.in_(distinctClinicsList)) \
+            .filter(Clinic.id.in_(matchedClinics)) \
             .order_by(asc(func.ST_Distance(Clinic.location, func.ST_GeographyFromText(location)))) \
             .first()
 
@@ -70,6 +69,11 @@ class Hospital(object):
             return
 
         clinicOutput = session.query(Clinic).filter(Clinic.id == closestClinic.id).first()
+
+        matchedSpecs = session.query(Speciality.id) \
+            .join(Speciality.symptoms) \
+            .filter(Symptom.id.in_(matchedSymptoms)) \
+            .all()
 
         doctorsOutput = session.query(Doctor).join(Doctor.clinics).join(Doctor.specialities) \
             .filter(Clinic.id == closestClinic.id).filter(Speciality.id.in_(matchedSpecs)).distinct(Doctor.id).all()
